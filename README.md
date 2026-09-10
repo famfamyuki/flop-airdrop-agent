@@ -22,6 +22,7 @@ The Yellow Paper is still an iterating implementation specification. Runtime/RPC
 - [x] Persistent Ed25519 DID created and recovery verified
 - [x] Signed Technocore introduction published; local evidence saved
 - [x] Spec-pinned protocol profile
+- [x] Fail-closed delegated session-key policy checks
 - [x] Agent-side compute-channel session state machine
 - [x] Verify-before-counter-sign receipt boundary
 - [x] Append-only neutral activity/evidence ledger
@@ -40,7 +41,7 @@ The intended flow is:
 
 `IDLE -> OPENING -> OPEN -> STREAMING -> SETTLEMENT_PENDING -> SETTLED | FAILED`
 
-Network-specific code stays behind `FlopNetworkPort`, so official Testnet details can be added without rewriting the session core.
+Delegated authority is bounded before network submission by session duration, per-transaction and daily spend caps, explicit pallet/destination allowlists, and circuit-breaker limits. Network-specific code stays behind `FlopNetworkPort`, so official Testnet details can be added without rewriting the session core.
 
 ## Run tests
 

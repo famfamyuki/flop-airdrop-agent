@@ -1,7 +1,9 @@
 import tempfile
 import unittest
 from pathlib import Path
+from decimal import Decimal
 
+from flop_agent.delegation import DelegationPolicy, PolicyViolation
 from flop_agent.ledger import EvidenceLedger
 from flop_agent.ports import NetworkNotConfigured, UnconfiguredFlopNetworkAdapter
 from flop_agent.protocol_profile import CURRENT_PROTOCOL
@@ -63,6 +65,32 @@ class HarnessTests(unittest.TestCase):
                     aggregate_gn=1,
                     miner_signature=b"miner",
                 )
+            )
+
+    def test_delegation_policy_enforces_protocol_bounds(self) -> None:
+        policy = DelegationPolicy(
+            duration_blocks=100,
+            per_tx_cap_flop=Decimal("10"),
+            daily_cap_flop=Decimal("50"),
+            allowed_pallets=frozenset({"compute_channel"}),
+            allowed_destinations=frozenset({"miner-1"}),
+        )
+        policy.authorize(
+            pallet="compute_channel",
+            destination="miner-1",
+            amount_flop=Decimal("5"),
+            daily_spent_flop=Decimal("10"),
+            window_tx_count=1,
+            window_spent_flop=Decimal("10"),
+        )
+        with self.assertRaises(PolicyViolation):
+            policy.authorize(
+                pallet="compute_channel",
+                destination="miner-1",
+                amount_flop=Decimal("11"),
+                daily_spent_flop=Decimal("10"),
+                window_tx_count=1,
+                window_spent_flop=Decimal("10"),
             )
 
     def test_network_adapter_fails_closed(self) -> None:
