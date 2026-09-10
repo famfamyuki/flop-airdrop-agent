@@ -5,3 +5,7 @@ secrets/
 private/
 identity.private.*
 SIGN_SEED
+__pycache__/
+*.py[cod]
+.venv/
+venv/
